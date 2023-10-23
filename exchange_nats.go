@@ -109,12 +109,19 @@ func (ex *NATSExchange) SendBatchEvents(events []*Event) error {
 	return ex.conn.Flush()
 }
 
-func (ex *NATSExchange) ChanSubscribe(subject string, channels chan Msg) (Subscription, error) {
+func (ex *NATSExchange) ChanSubscribe(subject string, channels chan Msg, durable string) (Subscription, error) {
 
 	ch := make(chan *nats.Msg, 2048)
 
 	js, _ := ex.conn.JetStream()
-	sub, err := js.ChanSubscribe(subject, ch)
+
+	// Durable
+	var opts []nats.SubOpt
+	if len(durable) > 0 {
+		opts = append(opts, nats.Durable(durable))
+	}
+
+	sub, err := js.ChanSubscribe(subject, ch, opts...)
 
 	sub.SetPendingLimits(-1, -1)
 	ex.conn.Flush()

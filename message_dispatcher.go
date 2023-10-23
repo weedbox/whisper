@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	MEMBER_SUBJECT_FORMAT = "%s.member.bucket.%v.%s" // <domain>.member.bucket.<hash>.<mid>
-	MEMBER_STREAM_FORMAT  = "%s_MEMBER_%d_MSG"       // <domain>_MEMBER_<hash>_MSG
+	MESSAGE_DISPATCHER_DURABLE_FORMAT = "%s_message_dispatcher"  // <domain>_message_dispatcher
+	MEMBER_SUBJECT_FORMAT             = "%s.member.bucket.%v.%s" // <domain>.member.bucket.<hash>.<mid>
+	MEMBER_STREAM_FORMAT              = "%s_MEMBER_%d_MSG"       // <domain>_MEMBER_<hash>_MSG
 )
 
 type MessageDispatcher interface {
@@ -37,11 +38,12 @@ func NewMessageDispatcher(w Whisper) MessageDispatcher {
 func (md *messageDispatcher) subscribe(bucket int32) error {
 
 	subject := fmt.Sprintf(GROUP_SUBJECT_FORMAT, md.w.Domain(), bucket, "*")
+	durable := fmt.Sprintf(MESSAGE_DISPATCHER_DURABLE_FORMAT, md.w.Domain())
 
 	ch := make(chan Msg, 2048)
 	md.channels[bucket] = ch
 
-	sub, err := md.w.Exchange().ChanSubscribe(subject, ch)
+	sub, err := md.w.Exchange().ChanSubscribe(subject, ch, durable)
 	if err != nil {
 		return err
 	}
