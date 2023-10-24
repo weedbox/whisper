@@ -1,4 +1,4 @@
-package main
+package whisper
 
 type Group interface {
 	ID() string

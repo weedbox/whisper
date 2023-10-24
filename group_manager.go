@@ -1,4 +1,4 @@
-package main
+package whisper
 
 type GroupManager interface {
 	Init(w Whisper) error

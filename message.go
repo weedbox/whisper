@@ -1,25 +1,25 @@
-package main
+package whisper
 
 import "encoding/json"
 
 type Message struct {
-	ID      string      `json:"id"`
-	Type    string      `json:"type"` // normal, event
-	Meta    Meta        `json:"meta"`
-	Payload interface{} `json:"payload"`
+	ID      string      `json:"id" binding:"required"`
+	Type    string      `json:"type" binding:"required"` // normal, event
+	Meta    Meta        `json:"meta" binding:"required"`
+	Payload interface{} `json:"payload" binding:"required"`
 }
 
 type Meta struct {
-	Sender      *Member  `json:"from"`
-	Group       string   `json:"group"`
+	Sender      *Member  `json:"from" binding:"required"`
+	Group       string   `json:"group" binding:"required"`
 	ContentType string   `json:"content_type"` // plain, image
-	CreatedAt   int64    `json:"created_at"`
+	CreatedAt   int64    `json:"created_at" binding:"required"`
 	Reference   *Message `json:"ref"`
 }
 
 type Member struct {
-	ID          string `json:"id"`
-	DisplayName string `json:"display_name"`
+	ID          string `json:"id" binding:"required"`
+	DisplayName string `json:"display_name" binding:"required"`
 	Avatar      string `json:"avatar"`
 }
 

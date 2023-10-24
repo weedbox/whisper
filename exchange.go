@@ -1,4 +1,4 @@
-package main
+package whisper
 
 type Exchange interface {
 	Init(w Whisper) error

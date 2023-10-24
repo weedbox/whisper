@@ -1,4 +1,4 @@
-package main
+package whisper
 
 import (
 	"github.com/nats-io/nats.go"
