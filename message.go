@@ -3,23 +3,23 @@ package whisper
 import "encoding/json"
 
 type Message struct {
-	ID      string      `json:"id" binding:"required"`
-	Type    string      `json:"type" binding:"required"` // normal, event
-	Meta    Meta        `json:"meta" binding:"required"`
-	Payload interface{} `json:"payload" binding:"required"`
+	ID      string      `json:"id" validate:"required"`
+	Type    string      `json:"type" validate:"required"` // normal, event
+	Meta    Meta        `json:"meta" validate:"required"`
+	Payload interface{} `json:"payload" validate:"required"`
 }
 
 type Meta struct {
-	Sender      *Member  `json:"from" binding:"required"`
-	Group       string   `json:"group" binding:"required"`
+	Sender      *Member  `json:"from" validate:"required"`
+	Group       string   `json:"group" validate:"required"`
 	ContentType string   `json:"content_type"` // plain, image
-	CreatedAt   int64    `json:"created_at" binding:"required"`
+	CreatedAt   int64    `json:"created_at" validate:"required"`
 	Reference   *Message `json:"ref"`
 }
 
 type Member struct {
-	ID          string `json:"id" binding:"required"`
-	DisplayName string `json:"display_name" binding:"required"`
+	ID          string `json:"id" validate:"required"`
+	DisplayName string `json:"display_name" validate:"required"`
 	Avatar      string `json:"avatar"`
 }
 
