@@ -11,7 +11,7 @@ var (
 type Whisper interface {
 	Init() error
 	Exchange() Exchange
-	GroupManager() GroupManager
+	GroupResolver() GroupResolver
 	Domain() string
 	BucketSize() int32
 	NewMessageReceiver() (MessageReceiver, error)
@@ -21,7 +21,7 @@ type Whisper interface {
 
 type whisper struct {
 	ex         Exchange
-	gm         GroupManager
+	gs         GroupResolver
 	domain     string
 	bucketSize int32
 }
@@ -34,9 +34,9 @@ func WithExchange(ex Exchange) Opt {
 	}
 }
 
-func WithGroupManager(gm GroupManager) Opt {
+func WithGroupResolver(gs GroupResolver) Opt {
 	return func(w *whisper) {
-		w.gm = gm
+		w.gs = gs
 	}
 }
 
@@ -70,7 +70,7 @@ func (w *whisper) Init() error {
 		return err
 	}
 
-	err = w.gm.Init(w)
+	err = w.gs.Init(w)
 	if err != nil {
 		return err
 	}
@@ -82,8 +82,8 @@ func (w *whisper) Exchange() Exchange {
 	return w.ex
 }
 
-func (w *whisper) GroupManager() GroupManager {
-	return w.gm
+func (w *whisper) GroupResolver() GroupResolver {
+	return w.gs
 }
 
 func (w *whisper) Domain() string {

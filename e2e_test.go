@@ -11,7 +11,7 @@ import (
 )
 
 var testNATSConn *nats.Conn
-var testGM GroupManager
+var testGS *GroupResolverMemory
 
 var members []Member
 var groups []Group
@@ -33,7 +33,7 @@ func init() {
 	}
 
 	// Initializing groups
-	testGM = NewGroupManagerMemory()
+	testGS = NewGroupResolverMemory()
 	for i := 0; i < 100; i++ {
 
 		var ms []string
@@ -41,7 +41,7 @@ func init() {
 			ms = append(ms, m.ID)
 		}
 
-		testGM.AddGroup(fmt.Sprintf("group_%d", i), ms)
+		testGS.AddGroup(fmt.Sprintf("group_%d", i), ms)
 	}
 }
 
@@ -53,13 +53,13 @@ func Test_E2E(t *testing.T) {
 		WithDomain("whisper"),
 		WithBucketSize(32),
 		WithExchange(ex),
-		WithGroupManager(testGM),
+		WithGroupResolver(testGS),
 	)
 
 	err := w.Init()
 	assert.Nil(t, err)
 
-	groups := testGM.GetGroups()
+	groups := testGS.GetGroups()
 
 	// Preparing a new message
 	msg := Message{

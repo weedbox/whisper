@@ -20,6 +20,7 @@ func (g *group) Rule() GroupRule {
 
 type GroupRule interface {
 	GetMembers() []string
+	AddMembers(members []string)
 }
 
 type groupRule struct {
@@ -34,4 +35,8 @@ func NewGroupRule() GroupRule {
 
 func (gr *groupRule) GetMembers() []string {
 	return gr.members
+}
+
+func (gr *groupRule) AddMembers(members []string) {
+	gr.members = append(gr.members, members...)
 }

@@ -127,7 +127,7 @@ func (md *messageDispatcher) HandleMessage(m Msg) error {
 	}
 
 	// Getting all of members in the group
-	rule := md.w.GroupManager().GetGroupRule(msg.Meta.Group)
+	rule := md.w.GroupResolver().GetGroupRule(msg.Meta.Group)
 
 	if rule == nil {
 		// No such group
