@@ -63,7 +63,6 @@ func (gs *GroupResolverHTTP) GetGroupRule(groupID string) GroupRule {
 		fmt.Println(err)
 		return nil
 	}
-	defer req.Body.Close()
 
 	respData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

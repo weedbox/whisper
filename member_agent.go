@@ -1,12 +1,15 @@
 package whisper
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	MEMBER_AGENT_DURABLE_FORMAT = "%s_member_agent_%s" // <domain>_member_agent_<durable>
 )
 
 type MemberAgent interface {
+	Close() error
 	ChanWatch(ch chan Msg) error
 	ChanSubscribe(durable string, ch chan Msg) error
 }
@@ -14,6 +17,7 @@ type MemberAgent interface {
 type memberAgent struct {
 	w        Whisper
 	memberID string
+	watcher  Subscription
 }
 
 func NewMemberAgent(w Whisper, memberID string) MemberAgent {
@@ -27,10 +31,12 @@ func (ma *memberAgent) ChanWatch(ch chan Msg) error {
 
 	subject := fmt.Sprintf(MEMBER_SUBJECT_FORMAT, ma.w.Domain(), "*", ma.memberID)
 
-	_, err := ma.w.Exchange().ChanWatch(subject, ch)
+	sub, err := ma.w.Exchange().ChanWatch(subject, ch)
 	if err != nil {
 		return err
 	}
+
+	ma.watcher = sub
 
 	return nil
 }
@@ -43,6 +49,15 @@ func (ma *memberAgent) ChanSubscribe(durable string, ch chan Msg) error {
 	_, err := ma.w.Exchange().ChanSubscribe(subject, ch, durableName)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (ma *memberAgent) Close() error {
+
+	if ma.watcher != nil {
+		ma.watcher.Unsubscribe()
 	}
 
 	return nil

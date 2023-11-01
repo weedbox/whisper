@@ -60,6 +60,10 @@ func NewWhisper(opts ...Opt) Whisper {
 		o(w)
 	}
 
+	if w.gs == nil {
+		w.gs = NewGroupResolverMemory()
+	}
+
 	return w
 }
 

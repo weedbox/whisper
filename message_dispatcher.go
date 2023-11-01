@@ -115,6 +115,8 @@ func (md *messageDispatcher) Close() {
 
 func (md *messageDispatcher) HandleMessage(m Msg) error {
 
+	fmt.Println(string(m.Payload()))
+
 	msg, err := ParseMessage(m.Payload())
 	if err != nil {
 
@@ -128,6 +130,8 @@ func (md *messageDispatcher) HandleMessage(m Msg) error {
 
 	// Getting all of members in the group
 	rule := md.w.GroupResolver().GetGroupRule(msg.Meta.Group)
+
+	fmt.Println(rule)
 
 	if rule == nil {
 		// No such group
