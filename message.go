@@ -10,7 +10,7 @@ type Message struct {
 }
 
 type Meta struct {
-	Sender      *Member  `json:"from" validate:"required"`
+	Sender      *Member  `json:"sender" validate:"required"`
 	Group       string   `json:"group" validate:"required"`
 	ContentType string   `json:"content_type"` // plain, image
 	CreatedAt   int64    `json:"created_at" validate:"required"`
