@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	DefaultAPI_GetMemberIDs     = "/apis/v1/group/:group_id/members/id"
-	DefaultAPI_GetIsMutedMember = "/apis/v1/group/:group_id/muted/:user_id"
+	DefaultAPI_GetMemberIDs  = "/apis/v1/group/:group_id/members/id"
+	DefaultAPI_IsMutedMember = "/apis/v1/group/:group_id/muted/:user_id"
 )
 
 type GetGroupResponse struct {
