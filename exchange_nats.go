@@ -142,6 +142,36 @@ func (ex *NATSExchange) ChanSubscribe(subject string, channels chan Msg, durable
 	return s, err
 }
 
+func (ex *NATSExchange) ChanQueueSubscribe(subject string, queue string, channels chan Msg) (Subscription, error) {
+
+	ch := make(chan *nats.Msg, 2048)
+
+	js, _ := ex.conn.JetStream()
+
+	// Durable
+	var opts []nats.SubOpt
+
+	sub, err := js.ChanQueueSubscribe(subject, queue, ch, opts...)
+
+	sub.SetPendingLimits(-1, -1)
+	ex.conn.Flush()
+
+	s := &NATSSubscription{
+		sub: sub,
+		ch:  ch,
+	}
+
+	go func() {
+		for m := range ch {
+			channels <- &NATSMsg{
+				m: m,
+			}
+		}
+	}()
+
+	return s, err
+}
+
 func (ex *NATSExchange) ChanWatch(subject string, channels chan Msg) (Subscription, error) {
 
 	ch := make(chan *nats.Msg, 2048)

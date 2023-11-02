@@ -8,6 +8,7 @@ type Exchange interface {
 	EmitEvent(subject string, payload []byte) error
 	SendBatchEvents(events []*Event) error
 	ChanSubscribe(subject string, channels chan Msg, durable string) (Subscription, error)
+	ChanQueueSubscribe(subject string, queue string, channels chan Msg) (Subscription, error)
 	ChanWatch(subject string, channels chan Msg) (Subscription, error)
 }
 

@@ -43,7 +43,7 @@ func (md *messageDispatcher) subscribe(bucket int32) error {
 	ch := make(chan Msg, 2048)
 	md.channels[bucket] = ch
 
-	sub, err := md.w.Exchange().ChanSubscribe(subject, ch, durable)
+	sub, err := md.w.Exchange().ChanQueueSubscribe(subject, durable, ch)
 	if err != nil {
 		return err
 	}
