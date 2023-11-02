@@ -10,4 +10,5 @@ var (
 type GroupResolver interface {
 	Init(w Whisper) error
 	GetMemberIDs(groupID string) ([]string, error)
+	IsMutedMember(groupID string, memberID string) (bool, error)
 }

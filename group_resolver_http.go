@@ -9,23 +9,33 @@ import (
 )
 
 const (
-	DefaultAPIRule = "/apis/v1/group/:group_id/members/id"
+	DefaultAPI_GetMemberIDs     = "/apis/v1/group/:group_id/members/id"
+	DefaultAPI_GetIsMutedMember = "/apis/v1/group/:group_id/muted/:user_id"
 )
 
 type GetGroupResponse struct {
 	Members []string `json:"members"`
 }
 
-type GroupResolverHTTP struct {
-	w       Whisper
-	url     string
-	apiRule string
+type IsMutedMemberResponse struct {
+	IsMuted bool `json:"is_muted"`
 }
 
-func NewGroupResolverHTTP(url string, apiRule string) GroupResolver {
+type GroupResolverHttpAPIs struct {
+	GetMemberIDs  string
+	IsMutedMember string
+}
+
+type GroupResolverHTTP struct {
+	w    Whisper
+	url  string
+	apis GroupResolverHttpAPIs
+}
+
+func NewGroupResolverHTTP(url string, apis GroupResolverHttpAPIs) GroupResolver {
 	return &GroupResolverHTTP{
-		url:     url,
-		apiRule: apiRule,
+		url:  url,
+		apis: apis,
 	}
 }
 
@@ -44,7 +54,7 @@ func (gs *GroupResolverHTTP) formatURL(template string, params map[string]string
 
 func (gs *GroupResolverHTTP) GetMemberIDs(groupID string) ([]string, error) {
 
-	url := gs.formatURL(fmt.Sprintf("%s%s", gs.url, gs.apiRule), map[string]string{
+	url := gs.formatURL(fmt.Sprintf("%s%s", gs.url, gs.apis.GetMemberIDs), map[string]string{
 		"group_id": groupID,
 	})
 
@@ -84,4 +94,48 @@ func (gs *GroupResolverHTTP) GetMemberIDs(groupID string) ([]string, error) {
 	}
 
 	return gres.Members, nil
+}
+
+func (gs *GroupResolverHTTP) IsMutedMember(groupID string, userID string) (bool, error) {
+
+	url := gs.formatURL(fmt.Sprintf("%s%s", gs.url, gs.apis.GetMemberIDs), map[string]string{
+		"group_id": groupID,
+		"user_id":  userID,
+	})
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Println(err)
+		return true, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return true, err
+	}
+
+	respData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return true, err
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return true, ErrGroupNotFound
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return true, ErrOperationFailure
+	}
+
+	var ires IsMutedMemberResponse
+	err = json.Unmarshal(respData, &ires)
+	if err != nil {
+		return true, nil
+	}
+
+	return ires.IsMuted, nil
 }

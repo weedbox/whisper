@@ -3,6 +3,7 @@ package whisper
 type groupMemory struct {
 	id      string
 	members map[string]*Member
+	muted   map[string]bool
 }
 
 type GroupResolverMemory struct {
@@ -36,6 +37,7 @@ func (gs *GroupResolverMemory) addGroup(groupID string, members []string) error 
 	g := &groupMemory{
 		id:      groupID,
 		members: make(map[string]*Member),
+		muted:   make(map[string]bool),
 	}
 
 	for _, mid := range members {
@@ -45,6 +47,20 @@ func (gs *GroupResolverMemory) addGroup(groupID string, members []string) error 
 	}
 
 	gs.groups[groupID] = g
+
+	return nil
+}
+
+func (gs *GroupResolverMemory) addMutedMembers(groupID string, members []string) error {
+
+	g, ok := gs.groups[groupID]
+	if !ok {
+		return ErrGroupNotFound
+	}
+
+	for _, mid := range members {
+		g.muted[mid] = true
+	}
 
 	return nil
 }
@@ -63,4 +79,18 @@ func (gs *GroupResolverMemory) GetMemberIDs(groupID string) ([]string, error) {
 	}
 
 	return members, nil
+}
+
+func (gs *GroupResolverMemory) IsMutedMember(groupID string, userID string) (bool, error) {
+
+	g, ok := gs.groups[groupID]
+	if !ok {
+		return false, ErrGroupNotFound
+	}
+
+	if _, ok := g.muted[userID]; ok {
+		return true, nil
+	}
+
+	return false, nil
 }

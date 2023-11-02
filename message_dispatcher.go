@@ -126,6 +126,20 @@ func (md *messageDispatcher) HandleMessage(m Msg) error {
 		return err
 	}
 
+	// Check if sender is muted or not
+	muted, err := md.w.GroupResolver().IsMutedMember(msg.Meta.Group, msg.Meta.Sender.ID)
+	if err != nil {
+		if err == ErrGroupNotFound {
+			return nil
+		}
+
+		return err
+	}
+
+	if muted {
+		return nil
+	}
+
 	// Getting all of members in the group
 	members, err := md.w.GroupResolver().GetMemberIDs(msg.Meta.Group)
 	if err != nil {
@@ -133,6 +147,19 @@ func (md *messageDispatcher) HandleMessage(m Msg) error {
 	}
 
 	if len(members) == 0 {
+		return nil
+	}
+
+	// Check if sender belongs to this group
+	found := false
+	for _, mid := range members {
+		if mid == msg.Meta.Sender.ID {
+			found = true
+			break
+		}
+	}
+
+	if !found {
 		return nil
 	}
 
