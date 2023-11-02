@@ -14,7 +14,6 @@ var testNATSConn *nats.Conn
 var testGS *GroupResolverMemory
 
 var members []Member
-var groups []Group
 
 func init() {
 	nc, err := nats.Connect("0.0.0.0:32803")
@@ -41,7 +40,7 @@ func init() {
 			ms = append(ms, m.ID)
 		}
 
-		testGS.AddGroup(fmt.Sprintf("group_%d", i), ms)
+		testGS.addGroup(fmt.Sprintf("group_%d", i), ms)
 	}
 }
 
@@ -59,7 +58,7 @@ func Test_E2E(t *testing.T) {
 	err := w.Init()
 	assert.Nil(t, err)
 
-	groups := testGS.GetGroups()
+	groups := testGS.getGroupIDs()
 
 	// Preparing a new message
 	msg := Message{
@@ -67,7 +66,7 @@ func Test_E2E(t *testing.T) {
 		Type: "normal",
 		Meta: Meta{
 			Sender:      &members[0],
-			Group:       groups[0].ID(),
+			Group:       groups[0],
 			ContentType: "plain",
 		},
 		Payload: "Hello",

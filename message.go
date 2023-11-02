@@ -17,12 +17,6 @@ type Meta struct {
 	Reference   *Message `json:"ref"`
 }
 
-type Member struct {
-	ID          string `json:"id" validate:"required"`
-	DisplayName string `json:"display_name" validate:"required"`
-	Avatar      string `json:"avatar"`
-}
-
 func ParseMessage(data []byte) (*Message, error) {
 
 	msg := &Message{}

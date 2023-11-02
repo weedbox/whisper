@@ -127,15 +127,16 @@ func (md *messageDispatcher) HandleMessage(m Msg) error {
 	}
 
 	// Getting all of members in the group
-	rule := md.w.GroupResolver().GetGroupRule(msg.Meta.Group)
+	members, err := md.w.GroupResolver().GetMemberIDs(msg.Meta.Group)
+	if err != nil {
+		return err
+	}
 
-	if rule == nil {
-		// No such group
+	if len(members) == 0 {
 		return nil
 	}
 
 	// Dispatch to all members in this group
-	members := rule.GetMembers()
 	return md.DispatchAll(members, m.Payload())
 }
 

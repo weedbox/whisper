@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var (
+const (
 	DefaultAPIRule = "/apis/v1/group/:group_id/members/id"
 )
 
@@ -22,7 +22,7 @@ type GroupResolverHTTP struct {
 	apiRule string
 }
 
-func NewGroupResolverHTTP(url string, apiRule string) *GroupResolverHTTP {
+func NewGroupResolverHTTP(url string, apiRule string) GroupResolver {
 	return &GroupResolverHTTP{
 		url:     url,
 		apiRule: apiRule,
@@ -42,7 +42,7 @@ func (gs *GroupResolverHTTP) formatURL(template string, params map[string]string
 	return template
 }
 
-func (gs *GroupResolverHTTP) GetGroupRule(groupID string) GroupRule {
+func (gs *GroupResolverHTTP) GetMemberIDs(groupID string) ([]string, error) {
 
 	url := gs.formatURL(fmt.Sprintf("%s%s", gs.url, gs.apiRule), map[string]string{
 		"group_id": groupID,
@@ -51,7 +51,7 @@ func (gs *GroupResolverHTTP) GetGroupRule(groupID string) GroupRule {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -60,30 +60,28 @@ func (gs *GroupResolverHTTP) GetGroupRule(groupID string) GroupRule {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 
 	respData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("group manager service is not available")
-		return nil
+
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, ErrGroupNotFound
+		}
+
+		return nil, ErrOperationFailure
 	}
 
 	var gres GetGroupResponse
 	err = json.Unmarshal(respData, &gres)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return []string{}, nil
 	}
 
-	r := NewGroupRule()
-	r.AddMembers(gres.Members)
-
-	return r
+	return gres.Members, nil
 }
