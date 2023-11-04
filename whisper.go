@@ -54,7 +54,10 @@ func WithBucketSize(size int32) Opt {
 
 func NewWhisper(opts ...Opt) Whisper {
 
-	w := &whisper{}
+	w := &whisper{
+		domain:     "whisper",
+		bucketSize: 32,
+	}
 
 	for _, o := range opts {
 		o(w)
